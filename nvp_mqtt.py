@@ -7,18 +7,25 @@ class nvp_mqtt:
   def __init__(self, **kwargs):
       self.set_initial_values(kwargs)
 
-  def create_client(self, message_handler=None):
-      self.check_configuration()
+    def create_client(self, message_handler=None, on_connect=None, on_disconnect=None):
+        self.check_configuration()
 
-      self.__client = mqtt.Client(self.clientId)
-      self.__client.username_pw_set(self.username, self.password)
-      self.__client.will_set(self.last_will_topic, 'offline', retain=True)
+        self.__client = mqtt.Client(self.clientId)
+        self.__client.username_pw_set(self.username, self.password)
 
-      if self.ssl == 1:
-        self.__client.tls_set_context(self.create_ssl_context())       
+        if self.ssl == 1:
+            self.__client.tls_set_context(self.create_ssl_context())
 
-      if message_handler is not None:
-          self.__client.on_message = message_handler
+        self.__client.will_set(self.last_will_topic, 'offline', retain=True)
+
+        if message_handler is not None:
+            self.__client.on_message = message_handler
+            
+        if on_connect is not None:
+            self.__client.on_connect = on_connect
+            
+        if on_disconnect is not None:
+            self.__client.on_disconnect = on_disconnect
 
 
   def connect(self):
