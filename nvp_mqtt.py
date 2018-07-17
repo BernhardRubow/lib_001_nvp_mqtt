@@ -7,7 +7,7 @@ class nvp_mqtt:
     def __init__(self, **kwargs):
         self.set_initial_values(kwargs)
 
-    def create_client(self, message_handler=None, on_connect=None, on_disconnect=None):
+    def create_client(self, message_handler=None, on_connect=None, on_disconnect=None, on_published=None):
         self.check_configuration()
 
         self.__client = mqtt.Client(self.clientId)
@@ -27,10 +27,17 @@ class nvp_mqtt:
         if on_disconnect is not None:
             self.__client.on_disconnect = on_disconnect
 
+        if on_published is not None:
+            self.__client.on_publish = on_published
+
 
     def connect(self):
         self.__client.connect(self.broker_address, self.port, 60)
         self.__client.publish(self.last_will_topic, "online", 1, retain=True)
+
+    
+    def disconnect(self):
+        self.__client.disconnect()
 
 
     def create_ssl_context(self):
